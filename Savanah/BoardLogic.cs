@@ -5,7 +5,7 @@ namespace Savanah
 {
     public class BoardLogic
     {
-        public void DrawBoard(string[,] board,List<IAnimal> list)
+        public void DrawBoard(string[,] board, List<IAnimal> list)
         {
             Console.Clear();
             for (int y = 0; y < board.GetLength(0); y++)
@@ -22,30 +22,28 @@ namespace Savanah
                 if (animal.Name == Constants.Lion)
                 {
                     Console.WriteLine();
-                    Console.WriteLine("Lion's Health :");
-                    Console.WriteLine(animal.Health);
+                    Console.WriteLine("Lion's Health :"+ animal.Health+ " PosY-" + animal.PosY+ " PosX-" + animal.PosX);
                 }
                 else
                 {
                     Console.WriteLine();
-                    Console.WriteLine("Antelope's Health :");
-                    Console.WriteLine(animal.Health);
+                    Console.WriteLine("Antelope's Health :" + animal.Health + " PosY-" + animal.PosY + " PosX-" + animal.PosX);
                 }
             }
         }
 
-        public void Add(string[,]board, ConsoleKeyInfo c, List<IAnimal> list)
+        public void Add(string[,] board, ConsoleKeyInfo c, List<IAnimal> list)
         {
             string animalToAdd = c.Key.ToString();
 
             if (animalToAdd == Constants.Lion)
             {
-                AddAnimal(board,new Lion(), list);
+                AddAnimal(board, new Lion(), list);
             }
 
             if (animalToAdd == Constants.Antelope)
             {
-                AddAnimal(board,new Antelope(), list);
+                AddAnimal(board, new Antelope(), list);
             }
         }
 
@@ -55,7 +53,7 @@ namespace Savanah
             {
                 for (int x = 0; x < board.GetLength(1); x++)
                 {
-                        board[y, x] = " ";
+                    board[y, x] = " ";
                 }
             }
         }
@@ -64,27 +62,23 @@ namespace Savanah
         {
             foreach (var animal in list)
             {
-                if (animal.Name == Constants.Lion || animal.Name == Constants.Antelope)
-                {
                     board[animal.PosY, animal.PosX] = animal.Name;
-                }
             }
         }
 
-        public void AddAnimal(string[,]board ,IAnimal newAnimal, List<IAnimal> animals)
+        public void AddAnimal(string[,] board, IAnimal newAnimal, List<IAnimal> animals)
         {
             AnimalActions animalAction = new AnimalActions();
 
             int PosY = animalAction.GenRandPos(0, 10);
             int PosX = animalAction.GenRandPos(0, 10);
 
-            if (animalAction.PosFree(board,PosY,PosX))
+            if (animalAction.PosFree(board, PosY, PosX))
             {
                 newAnimal.PosX = PosY;
                 newAnimal.PosY = PosX;
                 animals.Add(newAnimal);
             }
         }
-
     }
 }

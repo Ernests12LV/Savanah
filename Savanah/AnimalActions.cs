@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Savanah
 {
@@ -29,13 +30,11 @@ namespace Savanah
                 MovePosX = list[i].PosX + GenRandPos(-1, 2);
                 if (list[i].Name == Constants.Antelope)
                 {
-                    //position is free and safe
-                    if (PosFree(board, MovePosY, MovePosX) && antelopeActions.IsPosSafe(board, MovePosY, MovePosX))
+                    if (PosFree(board, MovePosY, MovePosX) && antelopeActions.IsPosSafe(list, list[i]))
                     {
                         MoveRand(board, list[i], MovePosY, MovePosX);
                     }
-                    //position is not safe or not free
-                    else if (!PosFree(board, MovePosY, MovePosX) || !antelopeActions.IsPosSafe(board, MovePosY, MovePosX))
+                    else if (!PosFree(board, MovePosY, MovePosX) || !antelopeActions.IsPosSafe(list, list[i]))
                     {
                         int PrevPosY = MovePosY;
                         int PrevPosX = MovePosX;
@@ -47,15 +46,14 @@ namespace Savanah
                         while (MovePosY == PrevPosY && MovePosX == PrevPosX);
                         MoveRand(board, list[i], MovePosY, MovePosX);
                     }
-                    //position is not safe and not free
-                    else if (!PosFree(board, MovePosY, MovePosX) && !antelopeActions.IsPosSafe(board, MovePosY, MovePosX))
+                    else if (!PosFree(board, MovePosY, MovePosX) && !antelopeActions.IsPosSafe(list, list[i]))
                     {
                         board[MovePosY, MovePosX] = list[i].Name;
                     }
                 }
                 if (list[i].Name == Constants.Lion)
                 {
-                    if (lionActions.CheckForPrey(board, list[i].PosY, list[i].PosX))
+                    if (lionActions.CheckForPrey(list,list[i],board, list[i].PosY, list[i].PosX))
                     {
                         lionActions.GetPrey(board, list[i].PosY, list[i].PosX, list[i], list);
                     }
@@ -65,6 +63,7 @@ namespace Savanah
                     }
                 }
             }
+            
         }
         public int GenRandPos(int from, int to)
         {
@@ -76,7 +75,7 @@ namespace Savanah
         }
         public void MoveRand(string[,] board, IAnimal animal, int MoveToPosY, int MoveToPosX)
         {
-            int currentPosY = animal.PosY;
+            //int currentPosY = animal.PosY;
             switch (MoveToPosY)
             {
                 case 10:
@@ -86,7 +85,7 @@ namespace Savanah
                     MoveToPosY = 0;
                     break;
             }
-            int currentPosX = animal.PosX;
+            //int currentPosX = animal.PosX;
             switch (MoveToPosX)
             {
                 case 10:
@@ -99,8 +98,8 @@ namespace Savanah
 
             animal.PosY = MoveToPosY;
             animal.PosX = MoveToPosX;
-            board[currentPosY, currentPosX] = " ";
-            board[MoveToPosY, MoveToPosX] = animal.Name;
+            //board[currentPosY, currentPosX] = " ";
+            //board[MoveToPosY, MoveToPosX] = animal.Name;
         }
         public bool PosFree(string[,] board, int PosY, int PosX)
         {
@@ -132,6 +131,34 @@ namespace Savanah
             }
             else PosFree = false;
             return PosFree;
+        }
+        public bool OutOfBounds(int Pos)
+        {
+            bool outOfBounds = false;
+
+            if (Pos > 9 || Pos < 0)
+            {
+                outOfBounds = true;
+                return outOfBounds;
+            }
+            return outOfBounds;
+        }
+        public IEnumerable<IAnimal> AnimalsAround(List<IAnimal> animals, IAnimal currentAnimal)
+        {
+            IEnumerable<IAnimal> animalsAround =
+            from animal in animals
+            where animal.PosX >= currentAnimal.PosX - 1 && animal.PosX <= currentAnimal.PosX + 1 &&
+                  animal.PosY >= currentAnimal.PosY - 1 && animal.PosY <= currentAnimal.PosY + 1 &&
+                  !Itself(animal, currentAnimal)
+            select animal;
+
+            return animalsAround;
+        }
+        private bool Itself(IAnimal animal, IAnimal currentAnimal)
+        {
+            bool itSelf = animal.PosY == currentAnimal.PosY && animal.PosX == currentAnimal.PosX;
+
+            return itSelf;
         }
     }
 }
