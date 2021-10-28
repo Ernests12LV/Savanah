@@ -4,12 +4,19 @@ namespace Savanah
 {
     public class AntelopeActions
     {
-        public bool IsPosSafe(List<IAnimal> list, IAnimal animal)
+        public bool IsPosSafe(List<IAnimal> list, int PosY, int PosX)
         {
             bool PosSafe;
             AnimalActions animalActions = new AnimalActions();
 
-            foreach (var item in animalActions.AnimalsAround(list, animal))
+
+            if (animalActions.OutOfBounds(PosY, PosX))
+            {
+                PosSafe = false;
+                return PosSafe;
+            }
+
+            foreach (var item in animalActions.AnimalsAround(list, PosY, PosX))
             {
                 if (item.Name == Constants.Lion)
                 {

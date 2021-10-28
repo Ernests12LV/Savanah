@@ -7,6 +7,8 @@ namespace Savanah
     {
         public void DrawBoard(string[,] board, List<IAnimal> list)
         {
+            AnimalActions animalActions = new AnimalActions();
+
             Console.Clear();
             for (int y = 0; y < board.GetLength(0); y++)
             {
@@ -22,12 +24,12 @@ namespace Savanah
                 if (animal.Name == Constants.Lion)
                 {
                     Console.WriteLine();
-                    Console.WriteLine("Lion's Health :"+ animal.Health+ " PosY-" + animal.PosY+ " PosX-" + animal.PosX);
+                    Console.WriteLine("lion's health :" + animal.Health + " posy-" + animal.PosY + " posx-" + animal.PosX);
                 }
                 else
                 {
                     Console.WriteLine();
-                    Console.WriteLine("Antelope's Health :" + animal.Health + " PosY-" + animal.PosY + " PosX-" + animal.PosX);
+                    Console.WriteLine("antelope's health :" + animal.Health + " posy-" + animal.PosY + " posx-" + animal.PosX);
                 }
             }
         }
@@ -38,12 +40,12 @@ namespace Savanah
 
             if (animalToAdd == Constants.Lion)
             {
-                AddAnimal(board, new Lion(), list);
+                AddAnimal(new Lion(), list);
             }
 
             if (animalToAdd == Constants.Antelope)
             {
-                AddAnimal(board, new Antelope(), list);
+                AddAnimal(new Antelope(), list);
             }
         }
 
@@ -66,14 +68,14 @@ namespace Savanah
             }
         }
 
-        public void AddAnimal(string[,] board, IAnimal newAnimal, List<IAnimal> animals)
+        public void AddAnimal(IAnimal newAnimal, List<IAnimal> animals)
         {
             AnimalActions animalAction = new AnimalActions();
 
             int PosY = animalAction.GenRandPos(0, 10);
             int PosX = animalAction.GenRandPos(0, 10);
 
-            if (animalAction.PosFree(board, PosY, PosX))
+            if (animalAction.PosFree(animals, PosY, PosX))
             {
                 newAnimal.PosX = PosY;
                 newAnimal.PosY = PosX;

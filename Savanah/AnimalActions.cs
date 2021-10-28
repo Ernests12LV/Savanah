@@ -26,44 +26,60 @@ namespace Savanah
 
             for (int i = 0; i < list.Count; i++)
             {
-                MovePosY = list[i].PosY + GenRandPos(-1, 2);
-                MovePosX = list[i].PosX + GenRandPos(-1, 2);
+                RandMovePos(list, list[i]);
                 if (list[i].Name == Constants.Antelope)
                 {
-                    if (PosFree(board, MovePosY, MovePosX) && antelopeActions.IsPosSafe(list, list[i]))
+                    if (antelopeActions.IsPosSafe(list, MovePosY, MovePosX))
                     {
-                        MoveRand(board, list[i], MovePosY, MovePosX);
+                        Move(list[i], MovePosY, MovePosX);
                     }
-                    else if (!PosFree(board, MovePosY, MovePosX) || !antelopeActions.IsPosSafe(list, list[i]))
+                    else if (!antelopeActions.IsPosSafe(list, MovePosY, MovePosX))
                     {
-                        int PrevPosY = MovePosY;
-                        int PrevPosX = MovePosX;
-                        do
+                        RandMovePos(list, list[i]);
+                        while (!antelopeActions.IsPosSafe(list, MovePosY, MovePosX))
                         {
-                            MovePosY = list[i].PosY + GenRandPos(-1, 2);
-                            MovePosX = list[i].PosX + GenRandPos(-1, 2);
+                            RandMovePos(list, list[i]);
+                            if (Stuck(list))
+                            {
+                                MovePosY = list[i].PosY;
+                                MovePosX = list[i].PosX;
+                                break;
+                            }
                         }
-                        while (MovePosY == PrevPosY && MovePosX == PrevPosX);
-                        MoveRand(board, list[i], MovePosY, MovePosX);
-                    }
-                    else if (!PosFree(board, MovePosY, MovePosX) && !antelopeActions.IsPosSafe(list, list[i]))
-                    {
-                        board[MovePosY, MovePosX] = list[i].Name;
+                        Move(list[i], MovePosY, MovePosX);
                     }
                 }
                 if (list[i].Name == Constants.Lion)
                 {
-                    if (lionActions.CheckForPrey(list,list[i],board, list[i].PosY, list[i].PosX))
+                    if (lionActions.CheckForPrey(list, list[i]))
                     {
-                        lionActions.GetPrey(board, list[i].PosY, list[i].PosX, list[i], list);
+                        lionActions.GetPrey(list[i], list);
                     }
-                    else if (PosFree(board, MovePosY, MovePosX))
+                    else
                     {
-                        MoveRand(board, list[i], MovePosY, MovePosX);
+                        Move(list[i], MovePosY, MovePosX);
                     }
                 }
             }
-            
+        }
+        public bool Stuck(List<IAnimal> list)
+        {
+            AntelopeActions antelopeActions = new AntelopeActions();
+
+            bool stuck;
+            for (int y = -1; y <= 1; y++)
+            {
+                for (int x = -1; x <= 1; x++)
+                {
+                    if (OutOfBounds(MovePosY + y, MovePosX + x) || !PosFree(list, MovePosY + y, MovePosX + x) || !antelopeActions.IsPosSafe(list, MovePosY + y, MovePosX + x))
+                    {
+                        stuck = true;
+                        return stuck;
+                    }
+                }
+            }
+            stuck = false;
+            return stuck;
         }
         public int GenRandPos(int from, int to)
         {
@@ -73,90 +89,69 @@ namespace Savanah
             roll = random.Next(from, to);
             return roll;
         }
-        public void MoveRand(string[,] board, IAnimal animal, int MoveToPosY, int MoveToPosX)
+        public void RandMovePos(List<IAnimal> list, IAnimal animal)
         {
-            //int currentPosY = animal.PosY;
-            switch (MoveToPosY)
+            do
             {
-                case 10:
-                    MoveToPosY = 9;
-                    break;
-                case -1:
-                    MoveToPosY = 0;
-                    break;
-            }
-            //int currentPosX = animal.PosX;
-            switch (MoveToPosX)
-            {
-                case 10:
-                    MoveToPosX = 9;
-                    break;
-                case -1:
-                    MoveToPosX = 0;
-                    break;
-            }
-
+                MovePosY = animal.PosY + GenRandPos(-1, 2);
+                MovePosX = animal.PosX + GenRandPos(-1, 2);
+                
+            } while (!PosFree(list, MovePosY, MovePosX) || OutOfBounds(MovePosY, MovePosX));
+        }
+        public void Move(IAnimal animal, int MoveToPosY, int MoveToPosX)
+        {
             animal.PosY = MoveToPosY;
             animal.PosX = MoveToPosX;
-            //board[currentPosY, currentPosX] = " ";
-            //board[MoveToPosY, MoveToPosX] = animal.Name;
         }
-        public bool PosFree(string[,] board, int PosY, int PosX)
+        public bool PosFree(List<IAnimal> list, int PosY, int PosX)
         {
-            //outside the bounds
             bool PosFree;
-            switch (PosY)
+            if (OutOfBounds(PosY, PosX))
             {
-                case 10:
-                    PosY = 9;
-                    break;
-                case -1:
-                    PosY = 0;
-                    break;
-            }
-            switch (PosX)
-            {
-                case 10:
-                    PosX = 9;
-                    break;
-                case -1:
-                    PosX = 0;
-                    break;
-            }
-
-            if (board[PosY, PosX] == " ")
-            {
-                PosFree = true;
+                PosFree = false;
                 return PosFree;
             }
-            else PosFree = false;
+            foreach (var animal in list)
+            {
+                if (animal.PosY == PosY && animal.PosX == PosX)
+                {
+                    PosFree = false;
+                    return PosFree;
+                }
+            }
+            PosFree = true;
             return PosFree;
         }
-        public bool OutOfBounds(int Pos)
+        public bool OutOfBounds(int PosY, int PosX)
         {
             bool outOfBounds = false;
 
-            if (Pos > 9 || Pos < 0)
+            if (PosY > 9 || PosY < 0)
+            {
+                outOfBounds = true;
+                return outOfBounds;
+            }
+            if (PosX > 9 || PosX < 0)
             {
                 outOfBounds = true;
                 return outOfBounds;
             }
             return outOfBounds;
         }
-        public IEnumerable<IAnimal> AnimalsAround(List<IAnimal> animals, IAnimal currentAnimal)
+        public IEnumerable<IAnimal> AnimalsAround(List<IAnimal> animals, int PosY, int PosX)
         {
             IEnumerable<IAnimal> animalsAround =
             from animal in animals
-            where animal.PosX >= currentAnimal.PosX - 1 && animal.PosX <= currentAnimal.PosX + 1 &&
-                  animal.PosY >= currentAnimal.PosY - 1 && animal.PosY <= currentAnimal.PosY + 1 &&
-                  !Itself(animal, currentAnimal)
+            where animal.PosX >= PosX - 1 && animal.PosX <= PosX + 1 &&
+                  animal.PosY >= PosY - 1 && animal.PosY <= PosY + 1 &&
+                  !Itself(animal, PosY, PosX)
             select animal;
 
             return animalsAround;
         }
-        private bool Itself(IAnimal animal, IAnimal currentAnimal)
+        private bool Itself(IAnimal animal, int PosY, int PosX)
         {
-            bool itSelf = animal.PosY == currentAnimal.PosY && animal.PosX == currentAnimal.PosX;
+            bool itSelf = animal.PosY == PosY && animal.PosX == PosX;
 
             return itSelf;
         }
