@@ -9,6 +9,8 @@ namespace Savanah
         static void Main()
         {
             List<IAnimal> list = new List<IAnimal>();
+            List<ValidPos> validPos = new List<ValidPos>();
+
             BoardLogic logic = new BoardLogic();
             GamePlay gamePlay = new GamePlay();
 
@@ -21,7 +23,7 @@ namespace Savanah
                 logic.CheckForAnimals(board, list);
 
                 logic.DrawBoard(board, list);
-                gamePlay.Game(list, board);
+                gamePlay.Game(list, board,validPos);
                 
                 c = Console.ReadKey();
                 logic.Add(board, c, list);

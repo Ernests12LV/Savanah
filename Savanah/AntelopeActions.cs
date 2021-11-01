@@ -9,13 +9,6 @@ namespace Savanah
             bool PosSafe;
             AnimalActions animalActions = new AnimalActions();
 
-
-            if (animalActions.OutOfBounds(PosY, PosX))
-            {
-                PosSafe = false;
-                return PosSafe;
-            }
-
             foreach (var item in animalActions.AnimalsAround(list, PosY, PosX))
             {
                 if (item.Name == Constants.Lion)
