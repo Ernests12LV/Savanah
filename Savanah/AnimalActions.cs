@@ -20,28 +20,18 @@ namespace Savanah
                 }
             }
         }
-        public void AnimalMove(List<IAnimal> list, string[,] board, List<ValidPos> validPos)
+        public void AnimalMove(List<IAnimal> list, string[,] board)
         {
             AntelopeActions antelopeActions = new AntelopeActions();
             LionActions lionActions = new LionActions();
 
             for (int i = 0; i < list.Count; i++)
             {
-                validPos.Clear();
-                PossiblePositions(list, list[i], validPos);
-                RandMovePos(list, list[i], validPos);
+                PossiblePositions(list, list[i]).Clear();
+                PossiblePositions(list, list[i]);
+                RandMovePos(list, list[i]);
                 if (list[i].Name == Constants.Antelope)
                 {
-                    while (!antelopeActions.IsPosSafe(list, MovePosY, MovePosX))
-                    {
-                        RandMovePos(list, list[i], validPos);
-                        if (Stuck(list, list[i], validPos))
-                        {
-                            MovePosY = list[i].PosY;
-                            MovePosX = list[i].PosX;
-                            break;
-                        }
-                    }
                     Move(list[i], MovePosY, MovePosX);
                 }
                 if (list[i].Name == Constants.Lion)
@@ -57,15 +47,6 @@ namespace Savanah
                 }
             }
         }
-        public bool Stuck(List<IAnimal> list, IAnimal animal, List<ValidPos> validPos)
-        {
-            bool stuck = false; ;
-            if (PossiblePositions(list, animal, validPos).Count == 0)
-            {
-                stuck = true;
-            }
-            return stuck;
-        }
         public int GenRandPos(int from, int to)
         {
             Random random = new Random();
@@ -74,18 +55,18 @@ namespace Savanah
             roll = random.Next(from, to);
             return roll;
         }
-        public void RandMovePos(List<IAnimal> list, IAnimal animal, List<ValidPos> validPos)
+        public void RandMovePos(List<IAnimal> list, IAnimal animal)
         {
-            int PosIndex = GenRandPos(0, (validPos.Count));
-            if (PossiblePositions(list, animal, validPos).Count == 0)
+            int PosIndex = GenRandPos(0, (PossiblePositions(list, animal).Count));
+            if (PossiblePositions(list, animal).Count == 0)
             {
                 MovePosY = animal.PosY;
                 MovePosX = animal.PosX;
             }
             else
             {
-                MovePosY = PossiblePositions(list, animal, validPos)[PosIndex].ValidPosY;
-                MovePosX = PossiblePositions(list, animal, validPos)[PosIndex].ValidPosX;
+                MovePosY = PossiblePositions(list, animal)[PosIndex].ValidPosY;
+                MovePosX = PossiblePositions(list, animal)[PosIndex].ValidPosX;
             }
         }
         public void Move(IAnimal animal, int MoveToPosY, int MoveToPosX)
@@ -147,22 +128,15 @@ namespace Savanah
                     validPos = false;
                 }
             }
-            if (OutOfBounds(PosY, PosX))
-            {
-                validPos = false;
-            }
-            if (animal.Name == Constants.Antelope && !antelopeActions.IsPosSafe(list, PosY, PosX))
-            {
-                validPos = false;
-            }
-            if (!PosFree(list, PosY, PosX))
+            if (OutOfBounds(PosY, PosX) || (animal.Name == Constants.Antelope && !antelopeActions.IsPosSafe(list, PosY, PosX)) || !PosFree(list, PosY, PosX))
             {
                 validPos = false;
             }
             return validPos;
         }
-        public List<ValidPos> PossiblePositions(List<IAnimal> list, IAnimal animal, List<ValidPos> validPos)
+        public List<ValidPos> PossiblePositions(List<IAnimal> list, IAnimal animal)
         {
+            List<ValidPos> validPos = new List<ValidPos>();
             ValidPos newValidPos;
             for (int y = -1; y < 2; y++)
             {
@@ -177,6 +151,13 @@ namespace Savanah
                         validPos.Add(newValidPos);
                     }
                 }
+            }
+
+            if (validPos.Count == 0)
+            {
+                newValidPos = new ValidPos();
+                newValidPos.ValidPosY = animal.PosY;
+                newValidPos.ValidPosX = animal.PosX;
             }
 
             return validPos;

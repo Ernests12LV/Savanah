@@ -4,11 +4,11 @@ namespace Savanah
 {
     public class GamePlay
     {
-        public void Game(List<IAnimal>list,string[,]board, List<ValidPos> validPos)
+        public void Game(List<IAnimal>list,string[,]board)
         {
             AnimalActions animalActions = new AnimalActions();
 
-            animalActions.AnimalMove(list,board,validPos);
+            animalActions.AnimalMove(list,board);
             animalActions.AnimalHealth(list);
         }
     }
