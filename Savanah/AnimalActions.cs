@@ -27,7 +27,6 @@ namespace Savanah
 
             for (int i = 0; i < list.Count; i++)
             {
-                PossiblePositions(list, list[i]).Clear();
                 PossiblePositions(list, list[i]);
                 RandMovePos(list, list[i]);
                 if (list[i].Name == Constants.Antelope)
